@@ -1,0 +1,25 @@
+{
+    "name": "tuxrampage/autowire",
+    "description": "Autowiring for DI containers",
+    "minimum-stability": "stable",
+    "license": "LGPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Axel H.",
+            "email": "tuxrampage@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "TuxRampage\\Autowire\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^8.5",
+        "psr/container": "^2.0.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^13.3.4",
+        "vimeo/psalm": "^6.17.2"
+    }
+}

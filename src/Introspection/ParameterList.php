@@ -16,6 +16,9 @@ use function array_reduce;
 use function array_values;
 use function is_int;
 
+/**
+ * @implements IteratorAggregate<string, Parameter>
+ */
 final readonly class ParameterList implements IteratorAggregate
 {
     /**
@@ -55,6 +58,20 @@ final readonly class ParameterList implements IteratorAggregate
     public function getIterator(): Iterator
     {
         return new ArrayIterator($this->items);
+    }
+
+    /**
+     * Returns all parameters including the variadic parameter
+     *
+     * @return iterable<string, Parameter>
+     */
+    public function allParameters(): iterable
+    {
+        yield from $this->items;
+
+        if ($this->variadicParameter) {
+            yield $this->variadicParameter->name => $this->variadicParameter;
+        }
     }
 
     /**

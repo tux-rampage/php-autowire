@@ -2,6 +2,8 @@
 
 namespace TuxRampage\Autowire\Config;
 
+use TuxRampage\Autowire\ReadonlyMap;
+
 /**
  * @psalm-import-type TypeConfigArray from TypeConfig
  */
@@ -10,7 +12,6 @@ final readonly class AliasConfig
     public function __construct(
         public string $name,
         public TypeConfig $type,
-        public bool $inherit = true,
     ) {
     }
 
@@ -22,7 +23,6 @@ final readonly class AliasConfig
         return [
             ...$this->type->toArray(),
             'alias' => $this->name,
-            'inherit' => $this->inherit,
         ];
     }
 }

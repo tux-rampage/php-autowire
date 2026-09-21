@@ -15,11 +15,6 @@ use UnexpectedValueException;
 final readonly class ConfiguredIntrospection implements IntrospectionStrategy
 {
     /**
-     * @var ArrayObject<string, TypeDefinition>
-     */
-    private ArrayObject $cache;
-
-    /**
      * @var array<string, TypeAlias>
      */
     private array $aliases;
@@ -28,7 +23,6 @@ final readonly class ConfiguredIntrospection implements IntrospectionStrategy
         Configuration $config,
         private IntrospectionStrategy $decorated
     ) {
-        $this->cache = new ArrayObject();
         $this->aliases = $config->aliases();
     }
 
@@ -42,19 +36,13 @@ final readonly class ConfiguredIntrospection implements IntrospectionStrategy
     #[Override]
     public function introspect(string $type): TypeDefinition
     {
-        $introspected = $this->cache->offsetGet($type);
-
-        if ($introspected !== null) {
-            return $introspected;
-        }
-
         $alias = $this->aliases[$type] ?? null;
 
         if (!$alias) {
             return $this->decorated->introspect($type);
         }
 
-        $class = $this->decorated->introspect($alias->type->name);
+        $class = $this->introspect($alias->type->name);
 
         if (!$class instanceof Constructable) {
             throw new UnexpectedValueException('Alias type must be constructable');

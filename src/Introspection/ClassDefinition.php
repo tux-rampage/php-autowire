@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TuxRampage\Autowire\Introspection;
 
 use Override;
+use TuxRampage\Autowire\Introspection\Type\BuiltinType;
 use TuxRampage\Autowire\Introspection\Type\ClassName;
 
 use TuxRampage\Autowire\Introspection\Type\IntersectionType;
@@ -22,22 +23,36 @@ readonly class ClassDefinition implements TypeDefinition
     public array $parentClasses;
 
     /**
+     * @var list<class-string>
+     */
+    public array $interfaces;
+
+    /**
      * @param string $name The name of the introspected class
      * @param ParameterList $parameters Constructor parameters for this class
-     * @param class-string ...$parentClasses All parent classes of this class
+     * @param class-string[] $parentClasses All parent classes of this class
+     * @param class-string[] $interfaces All parent classes of this class
      */
     public function __construct(
         public string $name,
         public ParameterList $parameters,
-        string ...$parentClasses,
+        array $parentClasses = [],
+        array $interfaces = [],
     ) {
         $this->parentClasses = array_values($parentClasses);
+        $this->interfaces = array_values($interfaces);
     }
 
     #[Override]
     public function getName(): string
     {
         return $this->name;
+    }
+
+    #[Override]
+    public function getSupertypes(): array
+    {
+        return $this->parentClasses;
     }
 
     /**
@@ -54,12 +69,13 @@ readonly class ClassDefinition implements TypeDefinition
         }
 
         if ($type instanceof UnionType) {
-            return array_any($type->types, fn($requiredType) => $this->satisfies($requiredType));
+            return array_any($type->types, fn($requiredType) => (!$requiredType instanceof BuiltinType) && $this->satisfies($requiredType));
         }
 
         $requiredType = $type->toClassName();
 
         return $this->name === $requiredType
-            || array_any($this->parentClasses, static fn($parentClass) => $parentClass === $requiredType);
+            || array_any($this->parentClasses, static fn($parentClass) => $parentClass === $requiredType)
+            || array_any($this->interfaces, static fn($interfaceName) => $interfaceName === $requiredType);
     }
 }

@@ -2,8 +2,6 @@
 
 namespace TuxRampage\Autowire\Introspection;
 
-use function array_values;
-
 final readonly class ConstructableClass extends ClassDefinition implements Constructable
 {
     public function toConstructableName(): string

@@ -23,11 +23,6 @@ use function is_scalar;
  */
 final class RuntimeIntrospection implements IntrospectionStrategy
 {
-    /**
-     * @var array<string, TypeDefinition>
-     */
-    private array $cache = [];
-
     #[Override]
     public function hasType(string $type): bool
     {
@@ -37,14 +32,7 @@ final class RuntimeIntrospection implements IntrospectionStrategy
     #[Override]
     public function introspect(string $type): TypeDefinition
     {
-        $introspected = $this->cache[$type] ?? null;
-
-        if ($introspected === null) {
-            $introspected = $this->introspectClass($type);
-            $this->cache[$type] = $introspected;
-        }
-
-        return $introspected;
+        return $this->introspectClass($type);
     }
 
     /**

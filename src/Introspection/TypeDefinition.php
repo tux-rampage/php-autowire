@@ -17,6 +17,13 @@ interface TypeDefinition
     public function getName(): string;
 
     /**
+     * Return all supertypes of this type
+     *
+     * @return string[]
+     */
+    public function getSupertypes(): array;
+
+    /**
      * Test whether this item satisfies the given type
      *
      * @param ClassName|IntersectionType|UnionType $type

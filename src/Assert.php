@@ -62,6 +62,24 @@ abstract class Assert
     }
 
     /**
+     * Assert that a given array is a hash map containing only string keys and values
+     *
+     * @psalm-assert array<string, string> $values
+     * @psalm-pure
+     */
+    public static function stringMap(mixed $values, string|null $noArrayMessage = null, string|null $badItemMessage = null): void
+    {
+        if (!is_array($values)) {
+            throw new InvalidArgumentException($noArrayMessage ?? 'Value is not an array');
+        }
+
+        if (array_any($values, static fn (mixed $value, mixed $key): bool => !is_string($key) || !is_string($value))) {
+            throw new InvalidArgumentException($badItemMessage ?? 'Hashmap contains invalid item');
+        }
+    }
+
+
+    /**
      * Assert that a given array is either a hash map containing only string keys or a numerically indexed array
      *
      * @template T

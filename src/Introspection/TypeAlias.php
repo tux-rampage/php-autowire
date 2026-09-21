@@ -26,6 +26,15 @@ final readonly class TypeAlias implements TypeDefinition, Constructable
     }
 
     #[Override]
+    public function getSupertypes(): array
+    {
+        return [
+            $this->class->getName(),
+            ...$this->getSupertypes(),
+        ];
+    }
+
+    #[Override]
     public function toConstructableName(): string
     {
         return $this->class->toConstructableName();

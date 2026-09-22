@@ -3,15 +3,21 @@
 namespace TuxRampage\Autowire\Introspection;
 
 use Override;
+use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionIntersectionType;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionUnionType;
+use TuxRampage\Autowire\Attributes\Inject;
+use TuxRampage\Autowire\Injectable;
 use TuxRampage\Autowire\Injectable\ScalarValue;
+use TuxRampage\Autowire\Injectable\VariadicValues;
 use TuxRampage\Autowire\Introspection\Type\IntersectionType;
 use TuxRampage\Autowire\Introspection\Type\UnionType;
 
+use function array_first;
+use function array_map;
 use function array_values;
 use function class_exists;
 use function enum_exists;
@@ -65,6 +71,24 @@ final class RuntimeIntrospection implements IntrospectionStrategy
                 : Type\ClassName::fromClassName($type->getName()),
         };
     }
+
+    private function reflectVariadicInjections(ReflectionParameter $reflected): VariadicValues|null
+    {
+        /** @var ReflectionAttribute<VariadicValues>|null $attribute */
+        $attribute = array_first($reflected->getAttributes(VariadicValues::class));
+
+        if ($attribute) {
+            return $attribute->newInstance();
+        }
+
+        $injectAttributes = array_map(
+            static fn(ReflectionAttribute $attribute) => $attribute->newInstance(),
+            $reflected->getAttributes(Inject::class),
+        );
+
+        return $injectAttributes ? new VariadicValues(array_values($injectAttributes)) : null;
+    }
+
     private function mapParameter(string $className, ReflectionParameter $reflected): Parameter
     {
         $default = false;
@@ -76,12 +100,26 @@ final class RuntimeIntrospection implements IntrospectionStrategy
                 : true;
         }
 
-        return new Parameter(
+        $type = $this->mapType($reflected->getType());
+
+        if ($reflected->isVariadic()) {
+            return new VariadicParameter(
+                $className,
+                $reflected->getName(),
+                $type,
+                $this->reflectVariadicInjections($reflected),
+            );
+        }
+
+        /** @var ReflectionAttribute<Inject>|null $attribute */
+        $attribute = array_first($reflected->getAttributes(Inject::class));
+
+        return new PositionalParameter(
             $className,
             $reflected->getName(),
             $this->mapType($reflected->getType()),
             $default,
-            $reflected->isVariadic(),
+            $attribute?->newInstance(),
         );
     }
 
@@ -100,7 +138,7 @@ final class RuntimeIntrospection implements IntrospectionStrategy
         foreach ($constructor->getParameters() as $reflectedParameter) {
             $parameter = $this->mapParameter($className, $reflectedParameter);
 
-            if ($parameter->isVariadic) {
+            if ($parameter instanceof VariadicParameter) {
                 $variadic = $parameter;
             } else {
                 $parameters[] = $parameter;

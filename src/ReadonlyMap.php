@@ -58,6 +58,10 @@ final readonly class ReadonlyMap implements ArrayAccess, IteratorAggregate, Coun
         return array_key_exists($offset, $this->data);
     }
 
+    /**
+     * @param string $offset
+     * @return T|null
+     */
     #[Override]
     public function offsetGet(mixed $offset): mixed
     {
@@ -65,12 +69,21 @@ final readonly class ReadonlyMap implements ArrayAccess, IteratorAggregate, Coun
         return $this->data[$offset] ?? null;
     }
 
+    /**
+     * @throws LogicException This method is not allowed on a readonly map
+     * @return never
+     */
     #[Override]
     public function offsetSet(mixed $offset, mixed $value): void
     {
         throw new LogicException('Cannot change a readonly map');
     }
 
+    /**
+     * @throws LogicException This method is not allowed on a readonly map
+     * @return never
+     */
+    #[Override]
     public function offsetUnset(mixed $offset): void
     {
         throw new LogicException('Cannot change a readonly map');

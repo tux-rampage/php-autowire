@@ -8,9 +8,13 @@ use TuxRampage\Autowire\Config\TypeConfig;
 final readonly class Configuration
 {
     /**
-     * @param array<string, TypeConfig|AliasConfig> $types
+     * @param ReadonlyMap<TypeConfig|AliasConfig> $types
+     * @param ReadonlyMap<string> $preferences
      */
-    public function __construct(private array $types)
+    public function __construct(
+        private ReadonlyMap $types,
+        public ReadonlyMap $preferences,
+    )
     {}
 
     /**
@@ -18,7 +22,7 @@ final readonly class Configuration
      */
     public function getAllTypes(): array
     {
-        return array_keys($this->types);
+        return array_keys($this->types->toArray());
     }
 
     public function getTypeConfig(string $type): TypeConfig|AliasConfig|null
@@ -27,10 +31,10 @@ final readonly class Configuration
     }
 
     /**
-     * @return array<AliasConfig>
+     * @return array<string, AliasConfig>
      */
     public function aliases(): array
     {
-        return array_filter($this->types, static fn($type): bool => $type instanceof AliasConfig);
+        return array_filter($this->types->toArray(), static fn($type): bool => $type instanceof AliasConfig);
     }
 }

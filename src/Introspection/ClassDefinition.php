@@ -7,15 +7,14 @@ namespace TuxRampage\Autowire\Introspection;
 use Override;
 use TuxRampage\Autowire\Introspection\Type\BuiltinType;
 use TuxRampage\Autowire\Introspection\Type\ClassName;
-
 use TuxRampage\Autowire\Introspection\Type\IntersectionType;
-
 use TuxRampage\Autowire\Introspection\Type\UnionType;
+use TuxRampage\Autowire\ReadonlyMap;
 
 use function array_any;
 use function array_values;
 
-readonly class ClassDefinition implements TypeDefinition
+readonly class ClassDefinition implements TypeDefinition, ProvidesPreferences, ProvidesDefaultService
 {
     /**
      * @var list<class-string>
@@ -28,6 +27,11 @@ readonly class ClassDefinition implements TypeDefinition
     public array $interfaces;
 
     /**
+     * @var ReadonlyMap<string>
+     */
+    public ReadonlyMap $preferences;
+
+    /**
      * @param string $name The name of the introspected class
      * @param ParameterList $parameters Constructor parameters for this class
      * @param class-string[] $parentClasses All parent classes of this class
@@ -38,9 +42,12 @@ readonly class ClassDefinition implements TypeDefinition
         public ParameterList $parameters,
         array $parentClasses = [],
         array $interfaces = [],
+        ReadonlyMap|null $preferences = null,
+        private string|null $defaultService = null,
     ) {
         $this->parentClasses = array_values($parentClasses);
         $this->interfaces = array_values($interfaces);
+        $this->preferences = $preferences ?? new ReadonlyMap([]);
     }
 
     #[Override]
@@ -53,6 +60,18 @@ readonly class ClassDefinition implements TypeDefinition
     public function getSupertypes(): array
     {
         return $this->parentClasses;
+    }
+
+    #[Override]
+    public function getPreferences(): ReadonlyMap
+    {
+        return $this->preferences;
+    }
+
+    #[Override]
+    public function getDefaultService(): string|null
+    {
+        return $this->defaultService;
     }
 
     /**

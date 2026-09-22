@@ -17,6 +17,8 @@ use TuxRampage\Autowire\Introspection\Type\ClassName;
 use TuxRampage\Autowire\Introspection\Type\IntersectionType;
 use TuxRampage\Autowire\Introspection\Type\UnionType;
 use TuxRampage\Autowire\Introspection\TypeDefinition;
+use TuxRampage\Autowire\Introspection\VariadicParameter;
+use TuxRampage\Autowire\ReadonlyMap;
 use TuxRampage\Autowire\Resolver\ContainerValidator;
 
 final readonly class ConfigResolver implements PreferenceResolver
@@ -28,16 +30,19 @@ final readonly class ConfigResolver implements PreferenceResolver
     ) {
     }
 
-    public function findPreference(AliasConfig|TypeConfig $config, ClassName|IntersectionType|UnionType $requestedType): string | null
+    /**
+     * @param ClassName|IntersectionType|UnionType $requestedType
+     * @param ReadonlyMap<string> $options
+     * @return string|null
+     */
+    public function findPreferenceOption(ClassName|IntersectionType|UnionType $requestedType, ReadonlyMap $options): string | null
     {
-        $config = $config instanceof AliasConfig ? $config->type : $config;
-
         if ($requestedType instanceof ClassName) {
-            return $config->preferences->offsetGet($requestedType->toClassName());
+            return $options->offsetGet($requestedType->toClassName());
         }
 
         foreach ($requestedType->types as $typeCandidate) {
-            $preference = $this->findPreference($config, $typeCandidate);
+            $preference = $this->findPreferenceOption($typeCandidate, $options);
 
             if ($preference !== null) {
                 return $preference;
@@ -47,11 +52,17 @@ final readonly class ConfigResolver implements PreferenceResolver
         return null;
     }
 
+    public function findPreference(AliasConfig|TypeConfig $config, ClassName|IntersectionType|UnionType $requestedType): string | null
+    {
+        $config = $config instanceof AliasConfig ? $config->type : $config;
+        return $this->findPreferenceOption($requestedType, $config->preferences);
+    }
+
     public function resolvePreference(TypeDefinition $contextType, Parameter $parameter): Injectable|null
     {
         $requestedType = $parameter->type;
 
-        if ($requestedType instanceof BuiltinType) {
+        if ($parameter instanceof VariadicParameter || $requestedType instanceof BuiltinType) {
             return null;
         }
 
@@ -81,6 +92,10 @@ final readonly class ConfigResolver implements PreferenceResolver
             }
         }
 
-        return null;
+        $preference = $this->findPreferenceOption($requestedType, $this->config->preferences);
+
+        return $preference
+            ? new Injectable\ContainerService($preference)
+            : null;
     }
 }

@@ -10,14 +10,18 @@ use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionUnionType;
 use TuxRampage\Autowire\Attributes\Inject;
+use TuxRampage\Autowire\Attributes\TypePreference;
 use TuxRampage\Autowire\Injectable;
 use TuxRampage\Autowire\Injectable\ScalarValue;
 use TuxRampage\Autowire\Injectable\VariadicValues;
 use TuxRampage\Autowire\Introspection\Type\IntersectionType;
 use TuxRampage\Autowire\Introspection\Type\UnionType;
 
+use TuxRampage\Autowire\ReadonlyMap;
+
 use function array_first;
 use function array_map;
+use function array_reduce;
 use function array_values;
 use function class_exists;
 use function enum_exists;
@@ -148,14 +152,41 @@ final class RuntimeIntrospection implements IntrospectionStrategy
         return new ParameterList($className, $parameters, $variadic);
     }
 
+    /**
+     * @param ReflectionClass $class
+     * @return ReadonlyMap<string>
+     */
+    private function reflectPreferences(ReflectionClass $class): ReadonlyMap
+    {
+        $attributes = array_reduce(
+            array_map(
+                static fn(ReflectionAttribute $attribute):TypePreference => $attribute->newInstance(),
+                $class->getAttributes(TypePreference::class)
+            ),
+            /**
+             * @param array<string, string> $carry
+             * @return array<string, string>
+             */
+            static fn(array $carry, TypePreference $attribute):array => [
+                ...$carry,
+                $attribute->type => $attribute->prefer
+            ],
+            []
+        );
+
+        return new ReadonlyMap($attributes);
+    }
+
     private function introspectClass(string $type): TypeDefinition
     {
         $reflection = new ReflectionClass($type);
         $parents = $this->collectParents($reflection);
+        $interfaces = array_values($reflection->getInterfaceNames());
         $parameters = $this->collectParameters($reflection);
+        $preferences = $this->reflectPreferences($reflection);
 
         return $reflection->isInstantiable()
-            ? new ConstructableClass($reflection->getName(), $parameters, ...$parents)
-            : new ClassDefinition($reflection->getName(), $parameters, ...$parents);
+            ? new ConstructableClass($reflection->getName(), $parameters, $parents, $interfaces, $preferences)
+            : new ClassDefinition($reflection->getName(), $parameters, $parents, $interfaces, $preferences);
     }
 }

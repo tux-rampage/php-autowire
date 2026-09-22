@@ -13,7 +13,7 @@ use TuxRampage\Autowire\Injectable\ScalarValue;
 abstract readonly class Parameter
 {
     public function __construct(
-        protected string $className,
+        public string $className,
         public string $name,
         public Type\BuiltinType|Type\ClassName|Type\IntersectionType|Type\UnionType $type,
     ) {

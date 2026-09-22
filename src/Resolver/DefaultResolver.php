@@ -4,12 +4,19 @@ namespace TuxRampage\Autowire\Resolver;
 
 use Override;
 use Psr\Container\ContainerInterface;
+use RuntimeException;
 use TuxRampage\Autowire\Assert;
+use TuxRampage\Autowire\Config\AliasConfig;
+use TuxRampage\Autowire\Configuration;
 use TuxRampage\Autowire\Injectable;
 use TuxRampage\Autowire\Introspection\Constructable;
 use TuxRampage\Autowire\Introspection\IntrospectionStrategy;
 use TuxRampage\Autowire\Introspection\Parameter;
+use TuxRampage\Autowire\Introspection\ProvidesDefaultService;
+use TuxRampage\Autowire\Introspection\Type\ClassName;
+use TuxRampage\Autowire\Introspection\TypeAlias;
 use TuxRampage\Autowire\Introspection\TypeDefinition;
+use TuxRampage\Autowire\Resolver\Preference\PreferenceResolver;
 use UnexpectedValueException;
 
 use function array_map;
@@ -20,14 +27,61 @@ final class DefaultResolver implements DependencyResolver
 {
     public function __construct(
         private readonly IntrospectionStrategy $introspection,
-        private readonly ContainerInterface $container,
-    )
+        private readonly PreferenceResolver $preferenceResolver,
+        private readonly Configuration $configuration,
+        private readonly ContainerInterface|ContainerValidator $container,
+    ) {
+    }
+
+    private function resolveParameterByConfig(TypeDefinition $contextType, Parameter $parameter): Injectable|null
     {
+        $types = [
+            $contextType->getName(),
+            ...$contextType->getSupertypes(),
+        ];
+
+        foreach ($types as $currentContextType) {
+            $config = $this->configuration->getTypeConfig($currentContextType);
+            $typeConfig = $config instanceof AliasConfig ? $config->type : $config;
+            $injection = $typeConfig->parameters->offsetGet($parameter->name);
+
+            if ($injection || !$config->inherit) {
+                return $injection;
+            }
+        }
+
+        return null;
+    }
+
+    private function resolveParameterFallbackService(Parameter $parameter): string
+    {
+        $service = $parameter->type instanceof ProvidesDefaultService
+            ? $parameter->type->getDefaultService()
+            : null;
+
+        if ($parameter->type instanceof ClassName) {
+            $service ??= $parameter->type->toClassName();
+        }
+
+        return $service ?? throw new RuntimeException(sprintf(
+            'Unable to resolve required parameter %s for class %s',
+            $parameter->name,
+            $parameter->className,
+        ));
     }
 
     private function resolveParameter(TypeDefinition $contextType, Parameter $parameter): Injectable|null
     {
-        return null;
+        $injection = $this->resolveParameterByConfig($contextType, $parameter)
+            ?? $this->preferenceResolver->resolvePreference($contextType, $parameter);
+
+        if (!$injection && !$parameter->isOptional()) {
+            return new Injectable\ContainerService(
+                $this->resolveParameterFallbackService($parameter),
+            );
+        }
+
+        return $injection;
     }
 
     #[Override]
@@ -53,11 +107,7 @@ final class DefaultResolver implements DependencyResolver
             }
         }
 
-        $container = $this->container;
-        $params = array_map(
-            static fn (Injectable $item) => $item->provideValue($container),
-            $introspected->buildConstructorParameters($resolved)
-        );
+        $params = $introspected->buildConstructorParameters($resolved);
 
         return new ResolvedInstance($className, $params);
     }

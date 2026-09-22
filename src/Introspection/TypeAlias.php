@@ -7,15 +7,16 @@ use Override;
 use TuxRampage\Autowire\Introspection\Type\ClassName;
 use TuxRampage\Autowire\Introspection\Type\IntersectionType;
 use TuxRampage\Autowire\Introspection\Type\UnionType;
+use TuxRampage\Autowire\ReadonlyMap;
 
 /**
  * Implements a type definition for class aliases
  */
-final readonly class TypeAlias implements TypeDefinition, Constructable
+final readonly class TypeAlias implements TypeDefinition, ProvidesPreferences, Constructable, ProvidesDefaultService
 {
     public function __construct(
         private string $name,
-        private TypeDefinition&Constructable $class,
+        private TypeDefinition&Constructable&ProvidesPreferences $class,
     ) {
     }
 
@@ -32,6 +33,20 @@ final readonly class TypeAlias implements TypeDefinition, Constructable
             $this->class->getName(),
             ...$this->getSupertypes(),
         ];
+    }
+
+    #[Override]
+    public function getPreferences(): ReadonlyMap
+    {
+        return $this->class->getPreferences();
+    }
+
+    #[Override]
+    public function getDefaultService(): string | null
+    {
+        return $this->class instanceof ProvidesDefaultService
+            ? $this->class->getDefaultService()
+            : null;
     }
 
     #[Override]

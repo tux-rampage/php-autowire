@@ -11,12 +11,20 @@ use TuxRampage\Autowire\Container\ArrayInstanceMap;
 use TuxRampage\Autowire\Container\InstanceMap;
 use TuxRampage\Autowire\Introspection\IntrospectionStrategy;
 
+use TuxRampage\Autowire\Resolver\DependencyResolver;
+use function array_map;
+use function assert;
+use function class_exists;
 use function is_array;
 
+/**
+ * @api
+ */
 final class RuntimeInjector implements Injector
 {
     public function __construct(
         private readonly IntrospectionStrategy $introspection,
+        private readonly DependencyResolver $resolver,
         private ContainerInterface $container,
     ) {
     }
@@ -52,11 +60,29 @@ final class RuntimeInjector implements Injector
         return $type instanceof Introspection\Constructable;
     }
 
+    /**
+     * @template T  of object
+     * @param class-string<T>|string $class
+     * @param array<string, Injectable> $args
+     * @return T
+     */
     #[Override]
     public function createInstance(string $class, array $args = []): object
     {
+        $resolved = $this->resolver->resolve($class, $args);
+        $constructable = $resolved->className;
+        $container = $this->container;
+        $args = array_map(
+            static fn (Injectable $injectable): mixed => $injectable->provideValue($container),
+            $resolved->injections,
+        );
 
+        assert(class_exists($constructable));
 
-        // TODO: Implement createInstance() method.
+        /**
+         * @psalm-suppress MixedMethodCall
+         * @psalm-var T
+         */
+        return new $constructable(...$args);
     }
 }

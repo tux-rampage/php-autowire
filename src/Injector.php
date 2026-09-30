@@ -14,11 +14,10 @@ interface Injector
     public function canCreate(string $class): bool;
 
     /**
-     * @template T
-     * @template C of class-string<T>|string
-     * @param C $class
+     * @template T  of object
+     * @param class-string<T>|string $class
      * @param array<string, Injectable> $args
-     * @return (C is class-string<T> ? T : object)
+     * @return T
      */
     public function createInstance(string $class, array $args = []): object;
 }

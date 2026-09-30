@@ -98,10 +98,8 @@ final readonly class ParameterList implements IteratorAggregate
         $injections = [];
         $variadic = $this->variadicParameter ? ($values[$this->variadicParameter->name] ?? null) : null;
 
-        if (!$variadic) {
-            $variadic = $this->variadicParameter?->isOptional()
-                ? $this->variadicParameter->toDefaultInjection()
-                : null;
+        if (!$variadic && $this->variadicParameter) {
+            $variadic = $this->variadicParameter->toDefaultInjection();
         }
 
         if ($variadic && !$variadic instanceof Injectable\VariadicValues) {
@@ -137,5 +135,4 @@ final readonly class ParameterList implements IteratorAggregate
             ...array_values($variadic->values),
         ];
     }
-
 }

@@ -3,7 +3,6 @@
 namespace TuxRampage\Autowire\Resolver;
 
 use Override;
-use Psr\Container\ContainerInterface;
 use RuntimeException;
 use TuxRampage\Autowire\Assert;
 use TuxRampage\Autowire\Config\AliasConfig;
@@ -14,22 +13,19 @@ use TuxRampage\Autowire\Introspection\IntrospectionStrategy;
 use TuxRampage\Autowire\Introspection\Parameter;
 use TuxRampage\Autowire\Introspection\ProvidesDefaultService;
 use TuxRampage\Autowire\Introspection\Type\ClassName;
-use TuxRampage\Autowire\Introspection\TypeAlias;
 use TuxRampage\Autowire\Introspection\TypeDefinition;
 use TuxRampage\Autowire\Resolver\Preference\PreferenceResolver;
 use UnexpectedValueException;
-
-use function array_map;
 use function get_class;
 use function sprintf;
 
-final class DefaultResolver implements DependencyResolver
+
+final readonly class DefaultResolver implements DependencyResolver
 {
     public function __construct(
-        private readonly IntrospectionStrategy $introspection,
-        private readonly PreferenceResolver $preferenceResolver,
-        private readonly Configuration $configuration,
-        private readonly ContainerInterface|ContainerValidator $container,
+        private IntrospectionStrategy $introspection,
+        private PreferenceResolver $preferenceResolver,
+        private Configuration $configuration,
     ) {
     }
 

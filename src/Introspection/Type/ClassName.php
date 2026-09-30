@@ -7,6 +7,9 @@ use InvalidArgumentException;
 
 use function preg_match;
 
+/**
+ * @api
+ */
 final readonly class ClassName
 {
     public function __construct(
@@ -17,14 +20,17 @@ final readonly class ClassName
             throw new InvalidArgumentException(sprintf('Invalid class name "%s"', $name));
         }
 
-        if (!preg_match('~^([a-z_][a-z0-9_]*)(\\\\[a-z_][a-z0-9_]*)*$~i', $namespace)) {
+        if ($namespace && !preg_match('~^([a-z_][a-z0-9_]+)(\\\\[a-z_][a-z0-9_]*)*$~i', $namespace)) {
             throw new InvalidArgumentException(sprintf('Invalid namespace "%s" for class "%s"', $namespace, $name));
         }
     }
 
     public static function fromClassName(string $className): self
     {
+        /** @psalm-suppress PossiblyUndefinedArrayOffset */
         [$namespace, $name] = explode('\\', $className, 2);
+
+        /** @psalm-var string|null $name */
 
         if ($name === null) {
             return new self($className);

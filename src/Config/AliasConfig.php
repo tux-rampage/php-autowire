@@ -5,6 +5,7 @@ namespace TuxRampage\Autowire\Config;
 use TuxRampage\Autowire\ReadonlyMap;
 
 /**
+ * @api
  * @psalm-import-type TypeConfigArray from TypeConfig
  */
 final readonly class AliasConfig
@@ -20,9 +21,9 @@ final readonly class AliasConfig
      */
     public function toArray(): array
     {
-        return [
-            ...$this->type->toArray(),
-            'alias' => $this->name,
-        ];
+        $array = $this->type->toArray();
+        $array['alias'] = $this->name;
+
+        return $array;
     }
 }

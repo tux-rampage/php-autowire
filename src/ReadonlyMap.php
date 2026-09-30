@@ -6,21 +6,21 @@ namespace TuxRampage\Autowire;
 
 use ArrayAccess;
 use ArrayIterator;
-use ArrayObject;
 use Countable;
 use IteratorAggregate;
 use LogicException;
 use Override;
-
 use Traversable;
 
 use function array_key_exists;
 use function assert;
 use function is_string;
 
+
 /**
  * @template T
  * @implements ArrayAccess<string, T>
+ * @implements IteratorAggregate<string, T>
  */
 final readonly class ReadonlyMap implements ArrayAccess, IteratorAggregate, Countable
 {
@@ -31,6 +31,9 @@ final readonly class ReadonlyMap implements ArrayAccess, IteratorAggregate, Coun
     {
     }
 
+    /**
+     * @return array<string, T>
+     */
     public function toArray(): array
     {
         return $this->data;
@@ -54,7 +57,6 @@ final readonly class ReadonlyMap implements ArrayAccess, IteratorAggregate, Coun
     #[Override]
     public function offsetExists(mixed $offset): bool
     {
-        assert(is_string($offset));
         return array_key_exists($offset, $this->data);
     }
 
@@ -65,7 +67,6 @@ final readonly class ReadonlyMap implements ArrayAccess, IteratorAggregate, Coun
     #[Override]
     public function offsetGet(mixed $offset): mixed
     {
-        assert(is_string($offset));
         return $this->data[$offset] ?? null;
     }
 

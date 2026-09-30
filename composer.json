@@ -14,6 +14,11 @@
             "TuxRampage\\Autowire\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "TuxRampage\\AutowireTest\\": "test/"
+        }
+    },
     "require": {
         "php": "^8.5",
         "psr/container": "^2.0.0"

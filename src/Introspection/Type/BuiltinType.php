@@ -4,9 +4,15 @@ declare(strict_types=1);
 
 namespace TuxRampage\Autowire\Introspection\Type;
 
+/**
+ * @api
+ */
 final readonly class BuiltinType
 {
-    public const TYPES = [
+    /**
+     * @var list<string>
+     */
+    public const array TYPES = [
         'int',
         'string',
         'bool',

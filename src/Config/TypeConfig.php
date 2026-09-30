@@ -10,6 +10,7 @@ use function is_array;
 use function is_bool;
 
 /**
+ * @api
  * @psalm-type TypeConfigArray = array{
  *     alias?: string|null,
  *     inherit?: bool,
@@ -53,6 +54,7 @@ final readonly class TypeConfig
 
     /**
      * @psalm-assert TypeConfigArray $config
+     * @psalm-suppress MixedAssignment
      */
     public static function fromArray(string $name, array $config): self|AliasConfig
     {
@@ -61,9 +63,8 @@ final readonly class TypeConfig
         $preferences = $config['preferences'] ?? [];
         $inherit = $config['inherit'] ?? true;
 
-        assert(is_string($name));
         assert(is_bool($inherit));
-        Assert::injectableMap($parameters);
+        Assert::injectableMap($parameters, true);
         Assert::stringMap($preferences);
 
         $typeConfig = new self($name, new ReadonlyMap($parameters), new ReadonlyMap($preferences), $inherit);

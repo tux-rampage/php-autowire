@@ -36,6 +36,7 @@ readonly class ClassDefinition implements TypeDefinition, ProvidesPreferences, P
      * @param ParameterList $parameters Constructor parameters for this class
      * @param class-string[] $parentClasses All parent classes of this class
      * @param class-string[] $interfaces All parent classes of this class
+     * @param ReadonlyMap<string>|null $preferences Preferences for this class
      */
     public function __construct(
         public string $name,

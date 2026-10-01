@@ -4,11 +4,17 @@ namespace TuxRampage\Autowire;
 
 use TuxRampage\Autowire\Config\AliasConfig;
 use TuxRampage\Autowire\Config\TypeConfig;
+use function array_map;
 
 /**
  * The config model for the autowire component
  *
  * @api
+ * @psalm-import-type TypeConfigArray from TypeConfig
+ * @psalm-type ConfigurationArray = array{
+ *     types?: array<string, TypeConfigArray>,
+ *     preferences?: array<string, string>,
+ * }
  */
 final readonly class Configuration
 {
@@ -21,6 +27,34 @@ final readonly class Configuration
         public ReadonlyMap $preferences,
     )
     {}
+
+    /**
+     * @psalm-assert ConfigurationArray $data
+     */
+    public static function fromArray(array $data): self
+    {
+        $types = $data['types'] ?? [];
+        $preferences = $data['preferences'] ?? [];
+
+        assert(is_array($types));
+        Assert::stringMap($preferences);
+
+        return new self(
+            new ReadonlyMap(TypeConfig::fromMap($types)),
+            new ReadonlyMap($preferences),
+        );
+    }
+
+    /**
+     * @return ConfigurationArray
+     */
+    public function toArray(): array
+    {
+        return [
+            'types' => array_map(static fn($type) => $type->toArray(), $this->types->toArray()),
+            'preferences' => $this->preferences->toArray(),
+        ];
+    }
 
     /**
      * @return list<string>

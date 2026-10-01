@@ -18,6 +18,9 @@ final readonly class Container implements ContainerInterface
 {
     private InstanceMap $instances;
 
+    /**
+     * @param array<string, mixed>|InstanceMap $instances
+     */
     public function __construct(
         private Injector $injector,
         private ContainerInterface|null $delegate = null,
@@ -40,7 +43,7 @@ final readonly class Container implements ContainerInterface
     /**
      * Create a new container based on this with the given instances
      *
-     * @param array|InstanceMap $instances When an array is given it will reuse a copy of the existing instance map, otherwise the existing instance map is replaced
+     * @param array<string, mixed>|InstanceMap $instances When an array is given it will reuse a copy of the existing instance map, otherwise the existing instance map is replaced
      * @param bool $replace When true the existing instance map is replaced entirely, otherwise the existing instances are merged
      * @return $this
      */

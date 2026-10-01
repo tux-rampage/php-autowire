@@ -7,6 +7,7 @@ use InvalidArgumentException;
 use Iterator;
 use IteratorAggregate;
 use LogicException;
+use Override;
 use Psalm\Issue\Trace;
 use Traversable;
 use TuxRampage\Autowire\Assert;
@@ -51,7 +52,7 @@ final readonly class ParameterList implements IteratorAggregate
 
     public function getParameter(string $name): Parameter
     {
-        if ($this->variadicParameter?->name === $name) {
+        if ($this->variadicParameter !== null && $this->variadicParameter->name === $name) {
             return $this->variadicParameter;
         }
 
@@ -61,6 +62,7 @@ final readonly class ParameterList implements IteratorAggregate
     /**
      * @return Traversable<string, Parameter>
      */
+    #[Override]
     public function getIterator(): Traversable
     {
         yield from $this->items;

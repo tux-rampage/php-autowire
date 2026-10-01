@@ -16,6 +16,9 @@ use TuxRampage\Autowire\Injectable;
  */
 final class DefaultValue implements Injectable
 {
+    /**
+     * @psalm-suppress PropertyNotSetInConstructor Jit init property hook
+     */
     private ReflectionParameter $parameter {
         get {
             if (!isset($this->parameter)) {

@@ -20,6 +20,7 @@ final readonly class VariadicParameter extends Parameter
         Type\BuiltinType|Type\ClassName|Type\IntersectionType|Type\UnionType $type,
         public InjectVariadic|null $injection = null,
     ) {
+        parent::__construct($className, $name, $type);
     }
 
     #[Override]

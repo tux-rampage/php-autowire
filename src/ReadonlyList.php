@@ -15,6 +15,7 @@ use function array_values;
 
 /**
  * @template T
+ * @implements IteratorAggregate<int, T>
  */
 final readonly class ReadonlyList implements IteratorAggregate, Countable
 {
@@ -37,7 +38,7 @@ final readonly class ReadonlyList implements IteratorAggregate, Countable
     #[Override]
     public function getIterator(): Traversable
     {
-        return new ArrayIterator($this->items);
+        yield from $this->items;
     }
 
     #[Override]

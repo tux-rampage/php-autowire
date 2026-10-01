@@ -5,6 +5,7 @@ namespace TuxRampage\Autowire\Introspection;
 
 use ArrayObject;
 use Override;
+use TuxRampage\Autowire\Config\AliasConfig;
 use TuxRampage\Autowire\Configuration;
 use UnexpectedValueException;
 
@@ -15,7 +16,7 @@ use UnexpectedValueException;
 final readonly class ConfiguredIntrospection implements IntrospectionStrategy
 {
     /**
-     * @var array<string, TypeAlias>
+     * @var array<string, AliasConfig>
      */
     private array $aliases;
 
@@ -44,8 +45,8 @@ final readonly class ConfiguredIntrospection implements IntrospectionStrategy
 
         $class = $this->introspect($alias->type->name);
 
-        if (!$class instanceof Constructable) {
-            throw new UnexpectedValueException('Alias type must be constructable');
+        if (!$class instanceof Constructable || !$class instanceof ProvidesPreferences) {
+            throw new UnexpectedValueException('Alias type must be constructable and provide preferences');
         }
 
         return new TypeAlias($alias->name, $class);

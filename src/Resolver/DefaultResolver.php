@@ -38,10 +38,10 @@ final readonly class DefaultResolver implements DependencyResolver
 
         foreach ($types as $currentContextType) {
             $config = $this->configuration->getTypeConfig($currentContextType);
-            $typeConfig = $config instanceof AliasConfig ? $config->type : $config;
-            $injection = $typeConfig->parameters->offsetGet($parameter->name);
+            $config = $config instanceof AliasConfig ? $config->type : $config;
+            $injection = $config?->parameters->offsetGet($parameter->name);
 
-            if ($injection || !$config->inherit) {
+            if ($injection || $config?->inherit === false) {
                 return $injection;
             }
         }

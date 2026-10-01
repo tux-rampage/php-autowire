@@ -3,14 +3,12 @@ declare(strict_types=1);
 
 namespace TuxRampage\Autowire\Resolver\Preference;
 
-use ArrayObject;
 use Override;
 use Psr\Container\ContainerInterface;
 use TuxRampage\Autowire\Config\AliasConfig;
 use TuxRampage\Autowire\Config\TypeConfig;
 use TuxRampage\Autowire\Configuration;
 use TuxRampage\Autowire\Injectable;
-use TuxRampage\Autowire\Introspection\ClassDefinition;
 use TuxRampage\Autowire\Introspection\IntrospectionStrategy;
 use TuxRampage\Autowire\Introspection\Parameter;
 use TuxRampage\Autowire\Introspection\Type\BuiltinType;

@@ -3,6 +3,7 @@
 namespace TuxRampage\Autowire\Resolver\Preference;
 
 use Closure;
+use Override;
 use TuxRampage\Autowire\Injectable;
 use TuxRampage\Autowire\Introspection\IntrospectionStrategy;
 use TuxRampage\Autowire\Introspection\Parameter;
@@ -24,6 +25,7 @@ final readonly class IntrospectionResolver implements PreferenceResolver
     {
     }
 
+    #[Override]
     public function resolvePreference(TypeDefinition $contextType, Parameter $parameter): Injectable|null
     {
         $typeName = $this->resolvePreferredTypeName($contextType, $parameter->type);
@@ -108,8 +110,13 @@ final readonly class IntrospectionResolver implements PreferenceResolver
             : null;
     }
 
-    private function resolveTypeDefault(TypeDefinition $contextType, BuiltinType|ClassName|IntersectionType|UnionType $type)
+    private function resolveTypeDefault(TypeDefinition $contextType, BuiltinType|ClassName|IntersectionType|UnionType $type): string|null
     {
+        // Builtin types cannot have a default preference
+        if ($type instanceof BuiltinType) {
+            return null;
+        }
+
         if ($type instanceof UnionType || $type instanceof IntersectionType) {
             return $this->resolvePreferredComplexTypeName($contextType, $type, $this->resolveTypeDefault(...));
         }

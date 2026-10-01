@@ -7,12 +7,9 @@ namespace TuxRampage\Autowire\Introspection\Type;
 final readonly class IntersectionType
 {
     /**
-     * @var non-empty-list<ClassName>
+     * @param non-empty-list<ClassName> $types
      */
-    public array $types;
-
-    public function __construct(ClassName $type, ClassName ...$types)
+    public function __construct(public array $types)
     {
-        $this->types = [$type, ...array_values($types)];
     }
 }

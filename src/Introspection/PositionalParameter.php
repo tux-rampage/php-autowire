@@ -11,6 +11,7 @@ use TuxRampage\Autowire\Attributes\Inject;
 use TuxRampage\Autowire\Injectable;
 use TuxRampage\Autowire\Injectable\DefaultValue;
 use TuxRampage\Autowire\Injectable\ScalarValue;
+use function class_exists;
 
 final readonly class PositionalParameter extends Parameter
 {
@@ -43,6 +44,8 @@ final readonly class PositionalParameter extends Parameter
         if ($this->defaultValue === false) {
             throw new LogicException(sprintf('Constructor parameter "%s" in class "%s" has no default value', $this->name, $this->className));
         }
+
+        /** @psalm-var class-string $this->className */
 
         return $this->defaultValue === true
             ? new DefaultValue($this->className, $this->name)

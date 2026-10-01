@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace TuxRampage\Autowire\Injectable;
 
 /**
- * @template T of string|int|float|bool|null
+ * @template-covariant T of string|int|float|bool|null
  * @extends StaticValue<T>
  */
 final readonly class ScalarValue extends StaticValue
 {
+    /**
+     * @param T $value
+     */
     public function __construct(string|int|float|bool|null $value)
     {
         parent::__construct($value);

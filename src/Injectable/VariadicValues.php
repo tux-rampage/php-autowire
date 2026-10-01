@@ -26,6 +26,9 @@ final readonly class VariadicValues implements Injectable
         }
     }
 
+    /**
+     * @param array{values: array<string, Injectable>|list<Injectable>} $state
+     */
     public static function __set_state(array $state): object
     {
         return new self($state['values']);

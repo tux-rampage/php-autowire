@@ -2,14 +2,17 @@
 
 namespace TuxRampage\Autowire\Introspection;
 
+use LogicException;
 use Override;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionIntersectionType;
 use ReflectionNamedType;
 use ReflectionParameter;
+use ReflectionType;
 use ReflectionUnionType;
 use TuxRampage\Autowire\Attributes\Inject;
+use TuxRampage\Autowire\Attributes\InjectVariadic;
 use TuxRampage\Autowire\Attributes\TypePreference;
 use TuxRampage\Autowire\Injectable;
 use TuxRampage\Autowire\Injectable\ScalarValue;
@@ -19,10 +22,12 @@ use TuxRampage\Autowire\Introspection\Type\UnionType;
 
 use TuxRampage\Autowire\ReadonlyMap;
 
+use UnexpectedValueException;
 use function array_first;
 use function array_map;
 use function array_reduce;
 use function array_values;
+use function assert;
 use function class_exists;
 use function enum_exists;
 use function get_class;
@@ -47,7 +52,7 @@ final class RuntimeIntrospection implements IntrospectionStrategy
 
     /**
      * @param ReflectionClass $reflection
-     * @return list<string>
+     * @return list<class-string>
      */
     private function collectParents(ReflectionClass $reflection): array
     {
@@ -59,27 +64,55 @@ final class RuntimeIntrospection implements IntrospectionStrategy
             $parent = $parent->getParentClass();
         }
 
-        return array_values($parents);
+        return $parents;
     }
-    private function mapType(ReflectionNamedType|UnionType|IntersectionType|null $type): Type\UnionType|Type\IntersectionType|Type\BuiltinType|Type\ClassName
+
+    private function mapClassType(ReflectionNamedType $type): Type\ClassName
+    {
+        $mapped = $this->mapType($type);
+
+        if ($mapped instanceof Type\BuiltinType) {
+            throw new UnexpectedValueException('Unexpected builtin type: ' . $mapped->type);
+        }
+
+        return $mapped;
+    }
+
+
+    /**
+     * Maps a reflection type to the introspected type representation
+     *
+     * @template T of ReflectionType|null
+     * @param T $type
+     * @return (
+     *      T is ReflectionUnionType
+     *          ? Type\UnionType
+     *          : (
+     *              T is ReflectionIntersectionType
+     *                  ? Type\IntersectionType
+     *                  : Type\BuiltinType|Type\ClassName
+     *          )
+     * )
+     */
+    private function mapType(ReflectionType|null $type): Type\UnionType|Type\IntersectionType|Type\BuiltinType|Type\ClassName
     {
         if ($type === null) {
             return new Type\BuiltinType('mixed');
         }
 
         return match (get_class($type)) {
-            ReflectionUnionType::class => new Type\UnionType(...array_map($this->mapType(...), $type->getTypes())),
-            ReflectionIntersectionType::class => new Type\IntersectionType(...array_map($this->mapType(...), $type->getTypes())),
+            ReflectionUnionType::class => new Type\UnionType(array_map($this->mapType(...), $type->getTypes())),
+            ReflectionIntersectionType::class => new Type\IntersectionType(array_map($this->mapClassType(...), $type->getTypes())),
             ReflectionNamedType::class => $type->isBuiltin()
-                ? new Type\BuiltinType($type->getName())
+                ? Type\BuiltinType::fromString($type->getName())
                 : Type\ClassName::fromClassName($type->getName()),
         };
     }
 
-    private function reflectVariadicInjections(ReflectionParameter $reflected): VariadicValues|null
+    private function reflectVariadicInjections(ReflectionParameter $reflected): InjectVariadic
     {
-        /** @var ReflectionAttribute<VariadicValues>|null $attribute */
-        $attribute = array_first($reflected->getAttributes(VariadicValues::class));
+        /** @var ReflectionAttribute<InjectVariadic>|null $attribute */
+        $attribute = array_first($reflected->getAttributes(InjectVariadic::class));
 
         if ($attribute) {
             return $attribute->newInstance();
@@ -90,14 +123,15 @@ final class RuntimeIntrospection implements IntrospectionStrategy
             $reflected->getAttributes(Inject::class),
         );
 
-        return $injectAttributes ? new VariadicValues(array_values($injectAttributes)) : null;
+        return new InjectVariadic($injectAttributes);
     }
 
-    private function mapParameter(string $className, ReflectionParameter $reflected): Parameter
+    private function mapParameter(string $className, ReflectionParameter $reflected): VariadicParameter|PositionalParameter
     {
         $default = false;
 
         if ($reflected->isDefaultValueAvailable()) {
+            /** @var mixed $defaultValue */
             $defaultValue = $reflected->getDefaultValue();
             $default = is_scalar($defaultValue)
                 ? new ScalarValue($defaultValue)
@@ -179,9 +213,11 @@ final class RuntimeIntrospection implements IntrospectionStrategy
 
     private function introspectClass(string $type): TypeDefinition
     {
+        assert(class_exists($type));
+
         $reflection = new ReflectionClass($type);
         $parents = $this->collectParents($reflection);
-        $interfaces = array_values($reflection->getInterfaceNames());
+        $interfaces = $reflection->getInterfaceNames();
         $parameters = $this->collectParameters($reflection);
         $preferences = $this->reflectPreferences($reflection);
 

@@ -5,6 +5,11 @@ namespace TuxRampage\Autowire;
 use TuxRampage\Autowire\Config\AliasConfig;
 use TuxRampage\Autowire\Config\TypeConfig;
 
+/**
+ * The config model for the autowire component
+ *
+ * @api
+ */
 final readonly class Configuration
 {
     /**

@@ -8,7 +8,7 @@ use Psr\Container\ContainerInterface;
 use TuxRampage\Autowire\Injectable;
 
 /**
- * @template T
+ * @template-covariant T
  */
 abstract readonly class StaticValue implements Injectable
 {

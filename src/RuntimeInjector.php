@@ -32,7 +32,7 @@ final class RuntimeInjector implements Injector
     /**
      * @api
      * @param ContainerInterface|null $container
-     * @param array|InstanceMap $instances
+     * @param array<string, mixed>|InstanceMap $instances
      * @return ContainerInterface
      */
     public function decorateContainer(ContainerInterface|null $container = null, array|InstanceMap $instances = []): ContainerInterface

@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace TuxRampage\Autowire\Introspection;
 
-use BadMethodCallException;
 use LogicException;
 use Override;
 use TuxRampage\Autowire\Attributes\Inject;
 use TuxRampage\Autowire\Injectable;
 use TuxRampage\Autowire\Injectable\DefaultValue;
 use TuxRampage\Autowire\Injectable\ScalarValue;
-use function class_exists;
 
 final readonly class PositionalParameter extends Parameter
 {

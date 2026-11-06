@@ -2,7 +2,6 @@
 
 namespace TuxRampage\Autowire\Introspection;
 
-use LogicException;
 use Override;
 use ReflectionAttribute;
 use ReflectionClass;
@@ -14,19 +13,13 @@ use ReflectionUnionType;
 use TuxRampage\Autowire\Attributes\Inject;
 use TuxRampage\Autowire\Attributes\InjectVariadic;
 use TuxRampage\Autowire\Attributes\TypePreference;
-use TuxRampage\Autowire\Injectable;
 use TuxRampage\Autowire\Injectable\ScalarValue;
-use TuxRampage\Autowire\Injectable\VariadicValues;
-use TuxRampage\Autowire\Introspection\Type\IntersectionType;
-use TuxRampage\Autowire\Introspection\Type\UnionType;
-
 use TuxRampage\Autowire\ReadonlyMap;
-
 use UnexpectedValueException;
+
 use function array_first;
 use function array_map;
 use function array_reduce;
-use function array_values;
 use function assert;
 use function class_exists;
 use function enum_exists;

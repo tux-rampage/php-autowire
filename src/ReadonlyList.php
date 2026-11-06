@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace TuxRampage\Autowire;
 
-use ArrayIterator;
 use Countable;
 use IteratorAggregate;
-
 use Override;
 use Traversable;
 

@@ -3,12 +3,10 @@
 namespace TuxRampage\Autowire;
 
 use Closure;
-
 use InvalidArgumentException;
 
 use function array_all;
 use function array_any;
-use function array_first;
 use function array_values;
 use function get_debug_type;
 use function is_array;

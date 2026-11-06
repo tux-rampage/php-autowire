@@ -2,22 +2,16 @@
 
 namespace TuxRampage\Autowire\Introspection;
 
-use ArrayIterator;
 use InvalidArgumentException;
-use Iterator;
 use IteratorAggregate;
 use LogicException;
 use Override;
-use Psalm\Issue\Trace;
 use Traversable;
-use TuxRampage\Autowire\Assert;
 use TuxRampage\Autowire\Injectable;
 use UnexpectedValueException;
 
-use function array_any;
 use function array_reduce;
 use function array_values;
-use function is_int;
 
 /**
  * @implements IteratorAggregate<string, Parameter>

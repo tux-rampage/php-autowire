@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace TuxRampage\Autowire\Attributes;
 
 use Attribute;
-use TuxRampage\Autowire\Assert;
 use TuxRampage\Autowire\Injectable;
 
 /**

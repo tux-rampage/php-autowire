@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace TuxRampage\Autowire\Introspection;
 
-use ArrayObject;
 use Override;
 use TuxRampage\Autowire\Config\AliasConfig;
 use TuxRampage\Autowire\Configuration;

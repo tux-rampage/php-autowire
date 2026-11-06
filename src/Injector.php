@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace TuxRampage\Autowire;
 
-use Psr\Container\ContainerInterface;
-
 interface Injector
 {
     /**

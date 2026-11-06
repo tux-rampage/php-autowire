@@ -13,8 +13,6 @@ use Override;
 use Traversable;
 
 use function array_key_exists;
-use function assert;
-use function is_string;
 
 
 /**

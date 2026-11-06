@@ -2,6 +2,7 @@
     "name": "tuxrampage/autowire",
     "description": "Autowiring for DI containers",
     "minimum-stability": "stable",
+    "type": "library",
     "license": "LGPL-3.0-or-later",
     "authors": [
         {

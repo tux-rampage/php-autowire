@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace TuxRampage\Autowire\Introspection;
 
-use BadMethodCallException;
 use LogicException;
 use Override;
 use TuxRampage\Autowire\Attributes\InjectVariadic;
-use TuxRampage\Autowire\Injectable\DefaultValue;
-use TuxRampage\Autowire\Injectable\ScalarValue;
 use TuxRampage\Autowire\Injectable\VariadicValues;
 
 final readonly class VariadicParameter extends Parameter

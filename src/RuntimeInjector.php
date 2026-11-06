@@ -4,18 +4,15 @@ declare(strict_types=1);
 
 namespace TuxRampage\Autowire;
 
-use LogicException;
 use Override;
 use Psr\Container\ContainerInterface;
-use TuxRampage\Autowire\Container\ArrayInstanceMap;
 use TuxRampage\Autowire\Container\InstanceMap;
 use TuxRampage\Autowire\Introspection\IntrospectionStrategy;
-
 use TuxRampage\Autowire\Resolver\DependencyResolver;
+
 use function array_map;
 use function assert;
 use function class_exists;
-use function is_array;
 
 /**
  * @api

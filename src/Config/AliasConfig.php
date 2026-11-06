@@ -2,8 +2,6 @@
 
 namespace TuxRampage\Autowire\Config;
 
-use TuxRampage\Autowire\ReadonlyMap;
-
 /**
  * @api
  * @psalm-import-type TypeConfigArray from TypeConfig

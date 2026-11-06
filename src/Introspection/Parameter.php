@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace TuxRampage\Autowire\Introspection;
 
-use BadMethodCallException;
 use LogicException;
 use TuxRampage\Autowire\Injectable;
-use TuxRampage\Autowire\Injectable\DefaultValue;
-use TuxRampage\Autowire\Injectable\ScalarValue;
 
 abstract readonly class Parameter
 {

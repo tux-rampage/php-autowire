@@ -27,5 +27,10 @@
     "require-dev": {
         "phpunit/phpunit": "^13.3.4",
         "vimeo/psalm": "^6.17.2"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.0-dev"
+        }
     }
 }
